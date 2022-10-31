@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  relayarchive_db:
+    container_name: relayarchive_db
+    image: postgres:latest
+    restart: always
+    ports:
+      - "5545:5545"
+    volumes:
+      - database_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=RelayArchive
+      - PGPORT=5545
+      - PGDATA=/var/lib/postgresql/data/pgdata
+
+  relayarchive_pgadmin:
+    container_name: relayarchive_pgadmin
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=pdadmin123@pgadmin.org
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "5546:80"
+    restart: always
+    volumes:
+      - pgadmin_data:/root/.pgadmin
+    depends_on:
+      - relayarchive_db
+
+  relayarchive_api:
+    container_name: relayarchive_api
+    build: ./RelayArchive.Api
+    ports:
+      - "5544:80"
+    depends_on:
+      - relayarchive_db
+
+volumes:
+  database_data:
+  pgadmin_data:
